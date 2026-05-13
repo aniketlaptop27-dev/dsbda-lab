@@ -1,0 +1,77 @@
+# INSTALL REQUIRED LIBRARIES
+!pip install beautifulsoup4 requests pandas
+
+# IMPORT LIBRARIES
+import requests
+from bs4 import BeautifulSoup
+import pandas as pd
+
+# WEBSITE URL
+url = "http://quotes.toscrape.com"
+
+# HEADERS
+headers = {
+    "User-Agent": "Mozilla/5.0"
+}
+
+# SEND REQUEST
+response = requests.get(url, headers=headers)
+
+# CHECK STATUS
+print("Status Code:", response.status_code)
+
+# PARSE HTML
+soup = BeautifulSoup(response.content, "html.parser")
+
+# PRINT PAGE TITLE
+print("Website Title:", soup.title.text)
+
+# CREATE EMPTY LISTS
+quotes = []
+authors = []
+tags = []
+ratings = []
+reviews = []
+
+# FIND ALL QUOTE BLOCKS
+data = soup.find_all("div", class_="quote")
+
+# EXTRACT DATA
+for item in data:
+
+    quote = item.find("span", class_="text").text
+    author = item.find("small", class_="author").text
+
+    tag_list = item.find_all("a", class_="tag")
+
+    tag_text = ", ".join([tag.text for tag in tag_list])
+
+    quotes.append(quote)
+    authors.append(author)
+    tags.append(tag_text)
+
+    # DUMMY ECOMMERCE STYLE DATA
+    ratings.append("4.5")
+    reviews.append("Good Review")
+
+# CREATE DATAFRAME
+df = pd.DataFrame({
+    "Customer Name": authors,
+    "Review": quotes,
+    "Comment Tags": tags,
+    "Rating": ratings,
+    "Review Status": reviews
+})
+
+# DISPLAY DATAFRAME
+print(df)
+
+# SAVE CSV FILE
+df.to_csv("ecommerce_reviews.csv", index=False)
+
+print("CSV FILE SAVED SUCCESSFULLY")
+
+# DOWNLOAD CSV FILE
+from google.colab import files
+
+files.download("ecommerce_reviews.csv")

@@ -1,0 +1,84 @@
+# CELL 1
+import pandas as pd
+import numpy as np
+
+
+# CELL 2
+df = pd.read_csv(
+    "dataset_Facebook.csv",
+    sep=';'
+)
+
+print("FIRST 5 ROWS")
+print(df.head())
+
+
+# CELL 3
+print("DATASET INFO")
+print(df.info())
+
+
+# CELL 4
+print("a. CREATE DATA SUBSETS")
+
+subset1 = df[
+    ['Page total likes', 'Type', 'Category']
+]
+
+subset2 = df[
+    ['Post Month', 'Post Weekday', 'Post Hour']
+]
+
+print("\nSUBSET 1")
+print(subset1.head())
+
+print("\nSUBSET 2")
+print(subset2.head())
+
+
+# CELL 5
+print("b. MERGE DATA")
+
+merged_data = pd.concat(
+    [subset1, subset2],
+    axis=1
+)
+
+print(merged_data.head())
+
+
+# CELL 6
+print("c. SORT DATA")
+
+sorted_data = df.sort_values(
+    by='Page total likes',
+    ascending=False
+)
+
+print(sorted_data.head())
+
+
+# CELL 7
+print("d. TRANSPOSE DATA")
+
+transpose_data = subset1.transpose()
+
+print(transpose_data)
+
+
+# CELL 8
+print("e. SHAPE OF DATA")
+
+print(df.shape)
+
+
+# CELL 9
+print("RESHAPE DATA")
+
+array_data = np.array(
+    df['Page total likes'].head(12)
+)
+
+reshaped_data = array_data.reshape(3,4)
+
+print(reshaped_data)

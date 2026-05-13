@@ -1,0 +1,128 @@
+#CELL 1
+!apt-get install openjdk-8-jdk-headless -qq
+!wget -q https://downloads.apache.org/hadoop/common/hadoop-3.3.6/hadoop-3.3.6.tar.gz
+!tar -xzf hadoop-3.3.6.tar.gz
+
+#CELL 2
+import os
+os.environ["JAVA_HOME"] = "/usr/lib/jvm/java-8-openjdk-amd64"
+os.environ["HADOOP_HOME"] = "/content/hadoop-3.3.6"
+os.environ["PATH"] += ":/content/hadoop-3.3.6/bin"
+
+#CELL 3
+%%writefile mapper.py
+import sys
+import csv
+
+reader = csv.reader(sys.stdin)
+next(reader)  # skip header
+
+for row in reader:
+    month = row[2]
+    temp = float(row[8])
+    print(f"{month}\t{temp}")
+
+#CELL 4
+%%writefile reducer.py
+import sys
+
+current_month = None
+temp_sum = 0
+count = 0
+
+for line in sys.stdin:
+    month, temp = line.strip().split("\t")
+    temp = float(temp)
+
+    if current_month == month:
+        temp_sum += temp
+        count += 1
+    else:
+        if current_month:
+            print(f"{current_month}\t{temp_sum / count}")
+        current_month = month
+        temp_sum = temp
+        count = 1
+
+if current_month:
+    print(f"{current_month}\t{temp_sum / count}")
+
+#CELL 5
+!cat forestfires.csv | python mapper.py | sort | python reducer.py
+
+#CELL 6
+!pip install pyspark
+
+#CELL 7
+!apt-get install openjdk-11-jdk-headless -qq
+
+#CELL 8
+import os
+
+os.environ["JAVA_HOME"] = "/usr/lib/jvm/java-11-openjdk-amd64"
+os.environ["PATH"] += ":/usr/lib/jvm/java-11-openjdk-amd64/bin"
+
+#CELL 9
+!pip install pyspark
+
+
+#CELL 10
+from pyspark.sql import SparkSession
+
+spark = SparkSession.builder \
+    .appName("ForestFireAnalysis") \
+    .master("local[*]") \
+    .getOrCreate()
+
+print("Spark started successfully!")
+
+#CELL 11
+!java -version
+
+#CELL 12
+!pip install findspark
+
+#CELL 13
+import findspark
+findspark.init()
+
+from pyspark.sql import SparkSession
+
+spark = SparkSession.builder.master("local[*]").getOrCreate()
+
+#CELL 14
+df = spark.read.csv("forestfires.csv", header=True, inferSchema=True)
+df.show(5)
+
+#CELL 15
+df.createOrReplaceTempView("forestfires")
+
+#CELL 16
+spark.sql("""
+SELECT month, AVG(temp) as avg_temp
+FROM forestfires
+GROUP BY month
+""").show()
+
+#CELL 17
+spark.sql("""
+SELECT wind, AVG(area) as avg_area
+FROM forestfires
+GROUP BY wind
+ORDER BY wind
+""").show()
+
+#CELL 18
+spark.sql("""
+SELECT * FROM forestfires
+WHERE temp > 30 AND wind > 5
+""").show()
+
+#CELL 19
+import pandas as pd
+import matplotlib.pyplot as plt
+
+pdf = df.toPandas()
+pdf.groupby("month")["area"].mean().plot(kind='bar')
+plt.title("Average Burned Area by Month")
+plt.show()

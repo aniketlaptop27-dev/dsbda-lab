@@ -1,0 +1,287 @@
+STEP 1 — UPDATE UBUNTU
+
+Open terminal:
+
+sudo apt update
+sudo apt upgrade -y
+STEP 2 — INSTALL JAVA
+
+Hadoop requires Java.
+
+Check if Java exists:
+
+java -version
+
+If not installed:
+
+sudo apt install openjdk-11-jdk -y
+
+Check again:
+
+java -version
+
+Expected output:
+
+openjdk version "11..."
+STEP 3 — CREATE HADOOP USER
+
+Create dedicated Hadoop user:
+
+sudo adduser hadoop
+
+Set password.
+
+Now add sudo access:
+
+sudo usermod -aG sudo hadoop
+
+Switch user:
+
+su - hadoop
+STEP 4 — INSTALL SSH
+
+Hadoop uses SSH internally.
+
+Install SSH:
+
+sudo apt install openssh-server openssh-client -y
+
+Check SSH:
+
+ssh localhost
+
+Type:
+
+yes
+
+Exit:
+
+exit
+STEP 5 — GENERATE SSH KEY
+
+As hadoop user:
+
+ssh-keygen -t rsa -P ""
+
+Press ENTER for all prompts.
+
+Now enable passwordless SSH:
+
+cat ~/.ssh/id_rsa.pub >> ~/.ssh/authorized_keys
+
+Set permissions:
+
+chmod 600 ~/.ssh/authorized_keys
+
+Test:
+
+ssh localhost
+
+If it logs in without password → SUCCESS.
+
+Exit:
+
+exit
+STEP 6 — DOWNLOAD HADOOP
+
+Go to home:
+
+cd ~
+
+Download Hadoop:
+
+wget https://downloads.apache.org/hadoop/common/hadoop-3.4.1/hadoop-3.4.1.tar.gz
+
+Extract:
+
+tar -xvzf hadoop-3.4.1.tar.gz
+
+Rename:
+
+mv hadoop-3.4.1 hadoop
+STEP 7 — SET ENVIRONMENT VARIABLES
+
+Open bashrc:
+
+nano ~/.bashrc
+
+Add at bottom:
+
+export HADOOP_HOME=/home/hadoop/hadoop
+export HADOOP_INSTALL=$HADOOP_HOME
+export HADOOP_MAPRED_HOME=$HADOOP_HOME
+export HADOOP_COMMON_HOME=$HADOOP_HOME
+export HADOOP_HDFS_HOME=$HADOOP_HOME
+export YARN_HOME=$HADOOP_HOME
+export HADOOP_COMMON_LIB_NATIVE_DIR=$HADOOP_HOME/lib/native
+export PATH=$PATH:$HADOOP_HOME/sbin:$HADOOP_HOME/bin
+export JAVA_HOME=/usr/lib/jvm/java-11-openjdk-amd64
+
+Save:
+
+CTRL + O
+ENTER
+CTRL + X
+
+Apply changes:
+
+source ~/.bashrc
+
+Check:
+
+echo $HADOOP_HOME
+STEP 8 — CONFIGURE HADOOP FILES
+
+Go:
+
+cd ~/hadoop/etc/hadoop
+A. hadoop-env.sh
+
+Open:
+
+nano hadoop-env.sh
+
+Find:
+
+export JAVA_HOME=
+
+Replace with:
+
+export JAVA_HOME=/usr/lib/jvm/java-11-openjdk-amd64
+
+Save and exit.
+
+B. core-site.xml
+
+Open:
+
+nano core-site.xml
+
+Replace everything inside <configuration> with:
+
+<configuration>
+<property>
+  <name>fs.defaultFS</name>
+  <value>hdfs://localhost:9000</value>
+</property>
+</configuration>
+
+Save.
+
+C. hdfs-site.xml
+
+Open:
+
+nano hdfs-site.xml
+
+Add:
+
+<configuration>
+<property>
+  <name>dfs.replication</name>
+  <value>1</value>
+</property>
+
+<property>
+  <name>dfs.name.dir</name>
+  <value>file:///home/hadoop/hadoopdata/hdfs/namenode</value>
+</property>
+
+<property>
+  <name>dfs.data.dir</name>
+  <value>file:///home/hadoop/hadoopdata/hdfs/datanode</value>
+</property>
+</configuration>
+
+Save.
+
+D. mapred-site.xml
+
+Copy template:
+
+cp mapred-site.xml.template mapred-site.xml
+
+Open:
+
+nano mapred-site.xml
+
+Add:
+
+<configuration>
+<property>
+  <name>mapreduce.framework.name</name>
+  <value>yarn</value>
+</property>
+</configuration>
+
+Save.
+
+E. yarn-site.xml
+
+Open:
+
+nano yarn-site.xml
+
+Add:
+
+<configuration>
+<property>
+  <name>yarn.nodemanager.aux-services</name>
+  <value>mapreduce_shuffle</value>
+</property>
+</configuration>
+
+Save.
+
+STEP 9 — CREATE HDFS DIRECTORIES
+mkdir -p ~/hadoopdata/hdfs/namenode
+mkdir -p ~/hadoopdata/hdfs/datanode
+STEP 10 — FORMAT NAMENODE
+
+VERY IMPORTANT STEP.
+
+hdfs namenode -format
+
+You should see:
+
+Storage directory ... has been successfully formatted
+STEP 11 — START HADOOP
+
+Start HDFS:
+
+start-dfs.sh
+
+Start YARN:
+
+start-yarn.sh
+STEP 12 — VERIFY SERVICES
+
+Check Java processes:
+
+jps
+
+Expected:
+
+NameNode
+DataNode
+SecondaryNameNode
+ResourceManager
+NodeManager
+STEP 13 — OPEN WEB INTERFACES
+
+HDFS:
+
+http://localhost:9870
+
+YARN:
+
+http://localhost:8088
+TEST HADOOP
+
+Create directory in HDFS:
+
+hdfs dfs -mkdir /test
+
+List:
+
+hdfs dfs -ls /
