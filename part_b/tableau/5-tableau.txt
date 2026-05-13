@@ -1,0 +1,249 @@
+# PERFORM THE FOLLOWING DATA VISUALIZATION OPERATIONS USING TABLEAU ON ADULT AND IRIS DATASETS
+
+DATASET FILES:
+adult.csv
+iris.csv
+
+
+# STEP 1 — OPEN TABLEAU
+
+Open Tableau Public/Desktop.
+
+
+# STEP 2 — IMPORT DATASET
+
+Click:
+Text File
+
+Select:
+adult.csv
+
+Click:
+Open
+
+
+# STEP 3 — IMPORT SECOND DATASET
+
+Click:
+Add
+
+Select:
+iris.csv
+
+Click:
+Open
+
+
+========================================================
+a) 1D (LINEAR) DATA VISUALIZATION
+========================================================
+
+# STEP 4 — CREATE HISTOGRAM
+
+Select:
+iris.csv
+
+Drag:
+SepalLength
+to Columns
+
+Drag:
+Number of Records
+to Rows
+
+Click:
+Show Me
+
+Choose:
+Histogram
+
+
+========================================================
+b) 2D (PLANAR) DATA VISUALIZATION
+========================================================
+
+# STEP 5 — CREATE SCATTER PLOT
+
+Open New Worksheet
+
+Drag:
+SepalLength
+to Columns
+
+Drag:
+PetalLength
+to Rows
+
+Drag:
+Species
+to Color
+
+Click:
+Show Me
+
+Choose:
+Scatter Plot
+
+
+========================================================
+c) 3D (VOLUMETRIC) DATA VISUALIZATION
+========================================================
+
+# STEP 6 — CREATE BUBBLE CHART
+
+Select:
+adult.csv
+
+Drag:
+Age
+to Columns
+
+Drag:
+Hours-per-week
+to Rows
+
+Drag:
+Education-num
+to Size
+
+Drag:
+Income
+to Color
+
+Click:
+Show Me
+
+Choose:
+Packed Bubbles
+
+
+========================================================
+d) TEMPORAL DATA VISUALIZATION
+========================================================
+
+# STEP 7 — CREATE LINE CHART
+
+Right Click Data Pane
+
+Choose:
+Create Calculated Field
+
+Name:
+FakeYear
+
+Formula:
+YEAR(TODAY())
+
+Click:
+OK
+
+Drag:
+FakeYear
+to Columns
+
+Drag:
+Age
+to Rows
+
+Click:
+Show Me
+
+Choose:
+Line Chart
+
+
+========================================================
+e) MULTIDIMENSIONAL DATA VISUALIZATION
+========================================================
+
+# STEP 8 — CREATE HEATMAP
+
+Open New Worksheet
+
+Drag:
+Species
+to Rows
+
+Drag:
+PetalLength
+to Columns
+
+Drag:
+SepalWidth
+to Color
+
+Click:
+Show Me
+
+Choose:
+Heat Map
+
+
+========================================================
+f) TREE / HIERARCHICAL DATA VISUALIZATION
+========================================================
+
+# STEP 9 — CREATE TREEMAP
+
+Select:
+adult.csv
+
+Drag:
+Education
+to Label
+
+Drag:
+Occupation
+to Color
+
+Drag:
+Age
+to Size
+
+Click:
+Show Me
+
+Choose:
+Treemap
+
+
+========================================================
+g) NETWORK DATA VISUALIZATION
+========================================================
+
+# STEP 10 — CREATE NETWORK STYLE VISUALIZATION
+
+Open New Worksheet
+
+Drag:
+Occupation
+to Columns
+
+Drag:
+Relationship
+to Rows
+
+Drag:
+Hours-per-week
+to Size
+
+Drag:
+Income
+to Color
+
+Click:
+Show Me
+
+Choose:
+Circle View
+
+
+========================================================
+# STEP 11 — SAVE PROJECT
+========================================================
+
+Click:
+File → Save As
+
+Save File Name:
+Assignment5.twb

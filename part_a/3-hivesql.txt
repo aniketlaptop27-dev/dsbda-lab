@@ -1,0 +1,184 @@
+# UPDATE UBUNTU
+sudo apt update
+
+# INSTALL JAVA
+sudo apt install openjdk-11-jdk -y
+
+# CHECK JAVA
+java -version
+
+# DOWNLOAD HIVE
+wget https://downloads.apache.org/hive/hive-3.1.3/apache-hive-3.1.3-bin.tar.gz
+
+# EXTRACT HIVE
+tar -xvzf apache-hive-3.1.3-bin.tar.gz
+
+# RENAME FOLDER
+mv apache-hive-3.1.3-bin hive
+
+# OPEN BASHRC
+nano ~/.bashrc
+
+ADD THESE LINES AT BOTTOM:
+
+export HIVE_HOME=/home/hadoop/hive
+export PATH=$PATH:$HIVE_HOME/bin
+
+SAVE:
+
+CTRL + O
+ENTER
+CTRL + X
+# APPLY CHANGES
+source ~/.bashrc
+
+# CHECK HIVE
+hive --version
+
+# START HADOOP
+start-dfs.sh
+start-yarn.sh
+
+# CREATE HDFS DIRECTORIES
+hdfs dfs -mkdir /tmp
+hdfs dfs -mkdir /user
+hdfs dfs -mkdir /user/hive
+hdfs dfs -mkdir /user/hive/warehouse
+
+# GIVE PERMISSIONS
+hdfs dfs -chmod g+w /tmp
+hdfs dfs -chmod g+w /user/hive/warehouse
+
+# INITIALIZE SCHEMA
+schematool -dbType derby -initSchema
+
+# CREATE LOCAL DIRECTORY
+mkdir flightdata
+
+# CREATE CSV FILE
+nano flightdata/flights.csv
+
+PASTE THIS:
+
+1,2008,1,1,AA,NYC,LAX,10
+2,2008,1,1,UA,SFO,ORD,20
+3,2008,1,2,DL,LAX,SFO,15
+4,2008,1,2,AA,ORD,NYC,30
+5,2008,1,3,UA,NYC,SFO,25
+
+SAVE:
+
+CTRL + O
+ENTER
+CTRL + X
+# START HIVE
+hive
+
+INSIDE HIVE:
+
+CREATE DATABASE flightdb;
+
+SHOW DATABASES;
+
+USE flightdb;
+
+CREATE TABLE flights (
+flight_id INT,
+year INT,
+month INT,
+day INT,
+carrier STRING,
+origin STRING,
+destination STRING,
+dep_delay INT
+)
+ROW FORMAT DELIMITED
+FIELDS TERMINATED BY ','
+STORED AS TEXTFILE;
+
+SHOW TABLES;
+
+DESCRIBE flights;
+
+ALTER TABLE flights
+ADD COLUMNS (arr_delay INT);
+
+DROP TABLE flights;
+
+CREATE TABLE flights (
+flight_id INT,
+year INT,
+month INT,
+day INT,
+carrier STRING,
+origin STRING,
+destination STRING,
+dep_delay INT
+)
+ROW FORMAT DELIMITED
+FIELDS TERMINATED BY ','
+STORED AS TEXTFILE;
+
+CREATE EXTERNAL TABLE external_flights (
+flight_id INT,
+year INT,
+month INT,
+day INT,
+carrier STRING,
+origin STRING,
+destination STRING,
+dep_delay INT
+)
+ROW FORMAT DELIMITED
+FIELDS TERMINATED BY ','
+LOCATION '/home/hadoop/flightdata';
+
+LOAD DATA LOCAL INPATH '/home/hadoop/flightdata/flights.csv'
+INTO TABLE flights;
+
+SELECT * FROM flights;
+
+INSERT INTO flights VALUES
+(6,2008,1,4,'AI','PUNE','DELHI',40);
+
+ALTER TABLE flights
+ADD COLUMNS (status STRING);
+
+CREATE TABLE airlines (
+carrier STRING,
+airline_name STRING
+)
+ROW FORMAT DELIMITED
+FIELDS TERMINATED BY ',';
+
+INSERT INTO airlines VALUES
+('AA','American Airlines'),
+('UA','United Airlines'),
+('DL','Delta Airlines'),
+('AI','Air India');
+
+SELECT f.flight_id,
+f.carrier,
+a.airline_name,
+f.origin,
+f.destination
+FROM flights f
+JOIN airlines a
+ON (f.carrier = a.carrier);
+
+CREATE INDEX flight_index
+ON TABLE flights(carrier)
+AS 'COMPACT'
+WITH DEFERRED REBUILD;
+
+ALTER INDEX flight_index
+ON flights
+REBUILD;
+
+SELECT day,
+AVG(dep_delay) AS avg_delay
+FROM flights
+WHERE year = 2008
+GROUP BY day;
+
+exit;
