@@ -1,0 +1,40 @@
+# STEP 1 — STOP HADOOP SERVICES
+stop-yarn.sh
+stop-dfs.sh
+
+# STEP 2 — REMOVE CORRUPTED TEMP FILES
+sudo rm -rf /tmp/hadoop-*
+
+# STEP 3 — CREATE HDFS DIRECTORIES AGAIN
+mkdir -p ~/hadoopdata/hdfs/namenode
+mkdir -p ~/hadoopdata/hdfs/datanode
+
+# STEP 4 — FORMAT NAMENODE AGAIN
+hdfs namenode -format
+
+# STEP 5 — START HDFS
+start-dfs.sh
+
+# STEP 6 — START YARN
+start-yarn.sh
+
+# STEP 7 — VERIFY SERVICES
+jps
+
+# EXPECTED OUTPUT:
+# NameNode
+# DataNode
+# SecondaryNameNode
+# ResourceManager
+# NodeManager
+# Jps
+
+# STEP 8 — TEST HDFS
+hdfs dfs -mkdir /test
+
+# STEP 9 — VERIFY HDFS DIRECTORY
+hdfs dfs -ls /
+
+# STEP 10 — STOP EVERYTHING AFTER COMPLETION
+stop-yarn.sh
+stop-dfs.sh

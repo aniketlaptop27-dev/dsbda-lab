@@ -1,0 +1,113 @@
+# CELL 1
+import pandas as pd
+import numpy as np
+
+from sklearn.preprocessing import StandardScaler
+
+from sklearn.model_selection import train_test_split
+
+from sklearn.linear_model import LogisticRegression
+
+from sklearn.metrics import accuracy_score
+
+
+# CELL 2
+print("LOAD AIR QUALITY DATASET")
+
+air_df = pd.read_csv(
+    "air_quality.csv"
+)
+
+print(air_df.head())
+
+
+# CELL 3
+print("LOAD HEART DISEASE DATASET")
+
+heart_df = pd.read_csv(
+    "heart.csv"
+)
+
+print(heart_df.head())
+
+
+# CELL 4
+print("a. DATA CLEANING")
+
+air_df.replace(-200, np.nan, inplace=True)
+
+heart_df.replace('?', np.nan, inplace=True)
+
+heart_df.dropna(inplace=True)
+
+print("MISSING VALUES REMOVED")
+
+
+# CELL 5
+print("b. DATA INTEGRATION")
+
+air_subset = air_df.head(len(heart_df))
+
+integrated_data = pd.concat(
+    [
+        heart_df.reset_index(drop=True),
+        air_subset.reset_index(drop=True)
+    ],
+    axis=1
+)
+
+print(integrated_data.head())
+
+
+# CELL 6
+print("c. DATA TRANSFORMATION")
+
+scaler = StandardScaler()
+
+numeric_columns = integrated_data.select_dtypes(
+    include=np.number
+).columns
+
+integrated_data[numeric_columns] = scaler.fit_transform(
+    integrated_data[numeric_columns]
+)
+
+print(integrated_data.head())
+
+
+# CELL 7
+print("d. ERROR CORRECTING")
+
+integrated_data.fillna(0, inplace=True)
+
+print("NULL VALUES CORRECTED")
+
+
+# CELL 8
+print("e. DATA MODEL BUILDING")
+
+target_column = heart_df.columns[-1]
+
+X = integrated_data.select_dtypes(
+    include=np.number
+).drop(target_column, axis=1)
+
+y = heart_df[target_column]
+
+X_train, X_test, y_train, y_test = train_test_split(
+    X,
+    y,
+    test_size=0.2,
+    random_state=42
+)
+
+model = LogisticRegression(max_iter=1000)
+
+model.fit(X_train, y_train)
+
+y_pred = model.predict(X_test)
+
+accuracy = accuracy_score(y_test, y_pred)
+
+print("MODEL ACCURACY:")
+print(accuracy)

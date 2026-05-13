@@ -1,0 +1,145 @@
+# CELL 1
+import pandas as pd
+import numpy as np
+
+import matplotlib.pyplot as plt
+import seaborn as sns
+
+
+# CELL 2
+print("LOAD AIR QUALITY DATASET")
+
+air_df = pd.read_csv(
+    "air_quality.csv"
+)
+
+print(air_df.head())
+
+
+# CELL 3
+print("LOAD HEART DISEASE DATASET")
+
+heart_df = pd.read_csv(
+    "heart.csv"
+)
+
+print(heart_df.head())
+
+
+# CELL 4
+print("LOAD FOREST FIRE DATASET")
+
+forest_df = pd.read_csv(
+    "forestfires.csv"
+)
+
+print(forest_df.head())
+
+
+# CELL 5
+print("MATPLOTLIB LINE GRAPH - AIR QUALITY")
+
+numeric_air = air_df.select_dtypes(include=np.number)
+
+plt.figure(figsize=(10,5))
+
+plt.plot(
+    numeric_air.iloc[:50,0]
+)
+
+plt.title("Air Quality Data")
+
+plt.xlabel("Records")
+
+plt.ylabel("Values")
+
+plt.show()
+
+
+# CELL 6
+print("SEABORN COUNTPLOT - HEART DISEASE")
+
+plt.figure(figsize=(8,5))
+
+target_col = heart_df.columns[-1]
+
+sns.countplot(
+    x=target_col,
+    data=heart_df
+)
+
+plt.title("Heart Disease Count")
+
+plt.show()
+
+
+# CELL 7
+print("MATPLOTLIB BAR GRAPH - FOREST FIRE")
+
+plt.figure(figsize=(10,5))
+
+month_area = forest_df.groupby('month')['area'].mean()
+
+month_area.plot(kind='bar')
+
+plt.title("Average Burned Area by Month")
+
+plt.xlabel("Month")
+
+plt.ylabel("Average Area")
+
+plt.show()
+
+
+# CELL 8
+print("SEABORN HEATMAP - HEART DATASET")
+
+numeric_heart = heart_df.select_dtypes(include=np.number)
+
+plt.figure(figsize=(12,8))
+
+sns.heatmap(
+    numeric_heart.corr(),
+    annot=True
+)
+
+plt.title("Heart Dataset Correlation Heatmap")
+
+plt.show()
+
+
+# CELL 9
+print("SEABORN SCATTERPLOT - FOREST FIRE")
+
+plt.figure(figsize=(8,5))
+
+sns.scatterplot(
+    x='temp',
+    y='RH',
+    data=forest_df
+)
+
+plt.title("Temperature vs Relative Humidity")
+
+plt.show()
+
+
+# CELL 10
+print("MATPLOTLIB HISTOGRAM - HEART DATASET")
+
+numeric_columns = heart_df.select_dtypes(include=np.number).columns
+
+plt.figure(figsize=(8,5))
+
+plt.hist(
+    heart_df[numeric_columns[0]],
+    bins=20
+)
+
+plt.title("Histogram")
+
+plt.xlabel(numeric_columns[0])
+
+plt.ylabel("Frequency")
+
+plt.show()
